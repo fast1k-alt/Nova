@@ -1,0 +1,33 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NOVA — Профиль</title><link rel="stylesheet" href="style.css"></head><body>
+<header class="header"><a class="logo" href="index.html">NOVA</a><nav>
+<a href="index.html">Главная</a><a href="projects.html">Проекты</a><a href="about.html">О нас</a><a href="contact.html">Контакты</a><a class="active" href="profile.html">Профиль</a><a href="chat.html">Чат</a></nav></header>
+<main class="page"><div class="eyebrow">PROFILE</div><h1>Твой <span>профиль.</span></h1><div id="profile"></div></main>
+<footer>NOVA © 2026</footer>
+<script src="effects.js"></script><script src="auth.js"></script><script>
+document.addEventListener('DOMContentLoaded',()=>{
+ const root=document.querySelector('#profile'),u=NOVA_USER.get();
+ if(!u){root.innerHTML='<p class="lead">Сначала войди или зарегистрируйся.</p>';return}
+ const avatar=u.avatar ? '<img class="profile-avatar" src="'+u.avatar+'" alt="Аватар">' : '<div class="avatar">'+u.nickname[0].toUpperCase()+'</div>';
+ root.innerHTML='<section class="profile-card">'+avatar+
+ '<h2>'+u.nickname+' '+(u.verified?'<b class="verified big" title="Подтверждённый профиль">✓</b>':'')+'</h2>'+
+ '<p class="lead">@'+u.nickname.toLowerCase()+'</p>'+
+ '<div class="avatar-controls"><label class="btn primary avatar-label" for="avatar-file">Выбрать аватарку</label><input id="avatar-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>'+
+ '<div class="profile-actions"><button class="btn primary" id="verify">Выдать себе галочку</button><button class="btn" id="logout">Выйти</button></div>'+
+ '<p class="note">Аватарка хранится локально в этом браузере и показывается в профиле и глобальном чате.</p></section>';
+
+ document.querySelector('#avatar-file').onchange=e=>{
+   const file=e.target.files[0]; if(!file)return;
+   if(file.size>2*1024*1024){alert('Аватарка должна быть не больше 2 МБ.');e.target.value='';return}
+   const reader=new FileReader();
+   reader.onload=()=>{
+     const accounts=NOVA_USER.accounts(); accounts[u.id].avatar=reader.result; NOVA_USER.save(accounts); location.reload();
+   };
+   reader.readAsDataURL(file);
+ };
+ document.querySelector('#verify').onclick=()=>{
+   const accounts=NOVA_USER.accounts(); accounts[u.id].verified=true; NOVA_USER.save(accounts); location.reload();
+ };
+ document.querySelector('#logout').onclick=()=>{localStorage.removeItem('nova_session_v1');location.reload()};
+});
+</script></body></html>
